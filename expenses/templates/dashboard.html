@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<p><strong>Total Monthly Expense:</strong> ${{ total_monthly_expense }}</p>
+
+<h2>Category Breakdown</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Total Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for category, total in category_breakdown.items %}
+        <tr>
+            <td>{{ category }}</td>
+            <td>${{ total }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">No data available</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Recent Expenses</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for expense in recent_expenses %}
+        <tr>
+            <td>{{ expense.category.name }}</td>
+            <td>${{ expense.amount }}</td>
+            <td>{{ expense.date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No recent expenses found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Logout Button -->
+{% if user.is_authenticated %}
+    <div class="logout-btn">
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
+{% endif %}
+
+{% endblock %}
+
+<style>
+    /* General reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #007bff;
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        color: #333;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+    }
+
+    /* Table Styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    tr:hover {
+        background-color: #e9ecef;
+    }
+
+    /* Total Monthly Expense */
+    p {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #007bff;
+    }
+
+    /* Logout Button */
+    .logout-btn {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    /* Responsive design for small screens */
+    @media (max-width: 600px) {
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+        }
+
+        table th, table td {
+            font-size: 14px;
+            padding: 10px;
+        }
+    }
+</style>

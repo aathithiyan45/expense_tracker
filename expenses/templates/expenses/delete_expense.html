@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Expense{% endblock %}
+
+{% block content %}
+<h1>Are you sure you want to delete this expense?</h1>
+<p><strong>Description:</strong> {{ expense.description }}</p>
+<p><strong>Amount:</strong> {{ expense.amount }}</p>
+<p><strong>Category:</strong> {{ expense.category }}</p>
+
+<form action="{% url 'delete_expense' expense.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, Delete</button>
+    <a href="{% url 'index' %}">Cancel</a>
+</form>
+{% endblock %}

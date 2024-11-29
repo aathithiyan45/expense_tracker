@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Add Expense</h1>
+<form method="post" action="{% url 'add_expense' %}">
+    {% csrf_token %}
+
+    <label for="id_category">Category:</label>
+    <select name="category" id="id_category">
+        {% for choice in form.category.field.choices %}
+            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+        {% endfor %}
+        <option value="Other">Other</option>
+    </select>
+
+    <!-- Custom category input field -->
+    <div id="custom-category-field" style="display: none; margin-top: 10px;">
+        <label for="custom_category">Custom Category:</label>
+        <input type="text" name="custom_category" id="custom_category" placeholder="Enter custom category">
+    </div>
+
+    <label for="id_amount">Amount:</label>
+    {{ form.amount }}
+
+    <label for="id_description">Description:</label>
+    {{ form.description }}
+
+    <label for="id_date">Date:</label>
+    {{ form.date }}
+
+    <button type="submit">Save Expense</button>
+</form>
+
+<script>
+    const categoryDropdown = document.getElementById('id_category');
+    const customCategoryField = document.getElementById('custom-category-field');
+
+    categoryDropdown.addEventListener('change', () => {
+        if (categoryDropdown.value === 'Other') {
+            customCategoryField.style.display = 'block';
+        } else {
+            customCategoryField.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

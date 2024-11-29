@@ -1,0 +1,174 @@
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        /* General reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f6fb;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Container for the form */
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px; /* Adjusted for better mobile fitting */
+            text-align: center;
+        }
+
+        /* Heading */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #1E3A8A; /* Bold blue color */
+        }
+
+        /* Styling the form */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Input styling */
+        input {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #4C6BFF;
+            box-shadow: 0 0 5px rgba(76, 107, 255, 0.6);
+        }
+
+        input:hover {
+            border-color: #4C6BFF; /* Hover effect for inputs */
+            box-shadow: 0 0 5px rgba(76, 107, 255, 0.3);
+        }
+
+        /* Submit button */
+        button {
+            padding: 12px;
+            font-size: 16px;
+            background-color: #4C6BFF;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #3553C7;
+            transform: translateY(-2px); /* Slight movement on hover */
+        }
+
+        button:active {
+            background-color: #2b48a1; /* Darker shade when clicked */
+            transform: translateY(0); /* Return to original position */
+        }
+
+        /* Sign-in link */
+        p {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        p a {
+            color: #4C6BFF;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        p a:hover {
+            color: #3553C7; /* Change color on hover */
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments for tablets and mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px; /* Add padding to body for smaller screens */
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 30px; /* More padding for comfort on smaller screens */
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            input, button {
+                font-size: 15px;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 16px; /* Slightly larger button text */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            input, button {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            p {
+                font-size: 12px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sign Up</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'login_or_signup' %}">Log in here</a>.</p>
+    </div>
+
+</body>
+</html>

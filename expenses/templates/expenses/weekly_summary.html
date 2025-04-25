@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h2>Weekly Summary</h2>
+
+    <!-- Display the graph -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="data:image/png;base64,{{ chart_image }}" alt="Weekly Summary Chart" style="max-width: 90%; height: auto;">
+    </div>
+
+    <!-- Display the table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Week</th>
+                <th>Total Expense</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in weekly_totals %}
+                <tr>
+                    <td>{{ entry.week }}</td>
+                    <td>${{ entry.total_amount }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">No data available</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

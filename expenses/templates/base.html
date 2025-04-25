@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Expense Tracker{% endblock %}</title>
+</head>
+<body>
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }} |
+            <!-- Change the logout link to a POST form -->
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">
+                    Logout
+                </button>
+            </form>
+        </p>
+    {% endif %}
+    {% block content %}{% endblock %}
+</body>
+</html>

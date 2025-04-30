@@ -57,20 +57,91 @@ def index(request):
     if category_filter:
         expenses = expenses.filter(category_id=category_filter)
 
+    # Calculate total expenses
     total_expense = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
 
-    category_breakdown = expenses.values('category__name').annotate(total=Sum('amount')).order_by('category__name')
-    category_breakdown = {item['category__name']: item['total'] for item in category_breakdown}
+    # Get highest spending category
+    highest_spending = expenses.values('category__name').annotate(
+        total=Sum('amount')
+    ).order_by('-total').first()
 
-    categories = Category.objects.all()  # For filter dropdown
+    # Get total number of transactions
+    total_transactions = expenses.count()
 
-    return render(request, 'expenses/index.html', {
-        'expenses': expenses,
+    # Get category-wise breakdown
+    category_totals = expenses.values('category__name').annotate(
+        total=Sum('amount')
+    ).order_by('-total')
+
+    # Get specific category totals
+    food_expenses = expenses.filter(category__name='Food').aggregate(Sum('amount'))['amount__sum'] or 0
+    travel_expenses = expenses.filter(category__name='Travel').aggregate(Sum('amount'))['amount__sum'] or 0
+    housing_expenses = expenses.filter(category__name='Housing').aggregate(Sum('amount'))['amount__sum'] or 0
+    healthcare_expenses = expenses.filter(category__name='Healthcare').aggregate(Sum('amount'))['amount__sum'] or 0
+    shopping_expenses = expenses.filter(category__name='Shopping').aggregate(Sum('amount'))['amount__sum'] or 0
+    other_expenses = expenses.exclude(
+        category__name__in=['Food', 'Travel', 'Housing', 'Healthcare', 'Shopping']
+    ).aggregate(Sum('amount'))['amount__sum'] or 0
+
+    # Calculate percentages for category cards
+    if total_expense > 0:
+        food_expenses_percent = (food_expenses / total_expense) * 100
+        travel_expenses_percent = (travel_expenses / total_expense) * 100
+        shopping_expenses_percent = (shopping_expenses / total_expense) * 100
+        other_expenses_percent = (other_expenses / total_expense) * 100
+    else:
+        food_expenses_percent = travel_expenses_percent = shopping_expenses_percent = other_expenses_percent = 0
+
+    # Get expense trend data (last 7 days)
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    last_week = timezone.now().date() - timedelta(days=7)
+    expense_trend = expenses.filter(
+        date__gte=last_week
+    ).values('date').annotate(
+        total=Sum('amount')
+    ).order_by('date')
+
+    # Prepare category distribution data
+    category_distribution = list(category_totals.values('category__name', 'total'))
+
+    # Get recent transactions for dashboard
+    recent_transactions = expenses.order_by('-date')[:5]
+
+    # Calculate month-to-date and year-to-date expenses
+    today = timezone.now().date()
+    first_day_of_month = today.replace(day=1)
+    first_day_of_year = today.replace(month=1, day=1)
+    
+    mtd_expenses = expenses.filter(date__gte=first_day_of_month).aggregate(Sum('amount'))['amount__sum'] or 0
+    ytd_expenses = expenses.filter(date__gte=first_day_of_year).aggregate(Sum('amount'))['amount__sum'] or 0
+
+    context = {
         'total_expense': total_expense,
-        'category_breakdown': category_breakdown,
-        'categories': categories,
+        'highest_spending': highest_spending['category__name'] if highest_spending else None,
+        'highest_spending_amount': highest_spending['total'] if highest_spending else 0,
+        'total_transactions': total_transactions,
+        'food_expenses': food_expenses,
+        'travel_expenses': travel_expenses,  # Fixed: using travel_expenses instead of transport_expenses
+        'shopping_expenses': shopping_expenses,
+        'other_expenses': other_expenses,
+        
+        # Percentages for category cards
+        'food_expenses_percent': food_expenses_percent,
+        'travel_expenses_percent': travel_expenses_percent,
+        'shopping_expenses_percent': shopping_expenses_percent,
+        'other_expenses_percent': other_expenses_percent,
+        
+        'expense_trend': list(expense_trend),
+        'category_distribution': category_distribution,
+        'categories': Category.objects.all(),
+        'recent_transactions': recent_transactions,
+        'mtd_expenses': mtd_expenses,
+        'ytd_expenses': ytd_expenses,
+    }
 
-    })
+    return render(request, 'expenses/index.html', context)
 
 
 @login_required
@@ -403,3 +474,60 @@ def update_profile(request):
     else:
         form = ProfileForm(instance=profile)
     return render(request, 'expenses/profile_update.html', {'form': form})
+
+
+@login_required
+def expenses_list(request):
+    """View to display all expenses."""
+    expenses = Expense.objects.filter(user=request.user).order_by('-date')
+    
+    # Get filter parameters
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    category_filter = request.GET.get('category_filter')
+    
+    # Apply filters if provided
+    if start_date and end_date:
+        expenses = expenses.filter(date__range=[start_date, end_date])
+    if category_filter:
+        expenses = expenses.filter(category_id=category_filter)
+    
+    # Calculate total filtered expenses
+    total_filtered = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    context = {
+        'expenses': expenses,
+        'total_filtered': total_filtered,
+        'categories': Category.objects.all(),
+    }
+    
+    return render(request, 'expenses/expenses_list.html', context)
+
+@login_required
+def categories(request):
+    """
+    View to display all expense categories and allow adding new ones.
+    """
+    # Get all categories for the current user
+    categories = Category.objects.filter(user=request.user)
+    
+    # Handle form submission for adding a new category
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description', '')
+        color = request.POST.get('color', '#4A90E2')
+        
+        if name:
+            # Create new category
+            Category.objects.create(
+                user=request.user,
+                name=name,
+                description=description,
+                color=color
+            )
+            return redirect('categories')
+    
+    # Render the categories template with the list of categories
+    return render(request, 'expenses/categories.html', {
+        'categories': categories
+    })
